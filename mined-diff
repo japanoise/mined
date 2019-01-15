@@ -1,0 +1,361 @@
+diff --git a/minix-2.0/fs/usr/src/commands/mined/Makefile b/minix-2.0/fs/usr/src/commands/mined/Makefile
+index 0a3677a..9833726 100644
+--- a/minix-2.0/fs/usr/src/commands/mined/Makefile
++++ b/minix-2.0/fs/usr/src/commands/mined/Makefile
+@@ -1,14 +1,15 @@
+ # Makefile for mined
+ 
+-CFLAGS	= -O -wo -D_MINIX -D_POSIX_SOURCE
++CFLAGS	= -O -w -DUNIX -D_POSIX_SOURCE
++LDFLAGS   = -lncurses
+ 
+ OBJ = mined1.o mined2.o
+ 
+ all:	mined
+ 
+ mined:	$(OBJ)
+-	$(CC) -i -o $@ $(OBJ)
+-	install -S 64k $@
++	$(CC) -o $@ $(OBJ) $(LDFLAGS)
++#	install -S 64k $@
+ 
+ install:	/usr/bin/mined
+ 
+diff --git a/minix-2.0/fs/usr/src/commands/mined/mined.h b/minix-2.0/fs/usr/src/commands/mined/mined.h
+index 48c20c6..10f7211 100644
+--- a/minix-2.0/fs/usr/src/commands/mined/mined.h
++++ b/minix-2.0/fs/usr/src/commands/mined/mined.h
+@@ -2,7 +2,8 @@
+  *				Mined.h					  *
+  *========================================================================*/
+ 
+-#include <minix/config.h>
++#include <term.h>
++#include "config.h"
+ #include <sys/types.h>
+ #include <fcntl.h>
+ #include <stdlib.h>
+@@ -243,131 +244,130 @@ extern long chars_saved;		/* Nr of chars saved in buffer */
+ 
+ /* mined1.c */
+ 
+-_PROTOTYPE(void FS, (void));
+-_PROTOTYPE(void VI, (void));
+-_PROTOTYPE(int WT, (void));
+-_PROTOTYPE(void XWT, (void));
+-_PROTOTYPE(void SH, (void));
+-_PROTOTYPE(LINE *proceed, (LINE *line, int count ));
+-_PROTOTYPE(int bottom_line, (FLAG revfl, char *s1, char *s2, char *inbuf, FLAG statfl ));
+-_PROTOTYPE(int count_chars, (LINE *line ));
+-_PROTOTYPE(void move, (int new_x, char *new_address, int new_y ));
+-_PROTOTYPE(int find_x, (LINE *line, char *address ));
+-_PROTOTYPE(char *find_address, (LINE *line, int x_coord, int *old_x ));
+-_PROTOTYPE(int length_of, (char *string ));
+-_PROTOTYPE(void copy_string, (char *to, char *from ));
+-_PROTOTYPE(void reset, (LINE *head_line, int screen_y ));
+-_PROTOTYPE(void set_cursor, (int nx, int ny ));
+-_PROTOTYPE(void open_device, (void));
+-_PROTOTYPE(int getchar, (void));
+-_PROTOTYPE(void display, (int x_coord, int y_coord, LINE *line, int count ));
+-_PROTOTYPE(int write_char, (int fd, int c ));
+-_PROTOTYPE(int writeline, (int fd, char *text ));
+-_PROTOTYPE(void put_line, (LINE *line, int offset, FLAG clear_line ));
+-_PROTOTYPE(int flush_buffer, (int fd ));
+-_PROTOTYPE(void bad_write, (int fd ));
+-_PROTOTYPE(void catch, (int sig ));
+-_PROTOTYPE(void abort_mined, (void));
+-_PROTOTYPE(void raw_mode, (FLAG state ));
+-_PROTOTYPE(void panic, (char *message ));
+-_PROTOTYPE(char *alloc, (int bytes ));
+-_PROTOTYPE(void free_space, (char *p ));
++void FS (void);
++void VI (void);
++int WT (void);
++void XWT (void);
++void SH (void);
++LINE *proceed (LINE *line, int count );
++int bottom_line (FLAG revfl, char *s1, char *s2, char *inbuf, FLAG statfl );
++int count_chars (LINE *line );
++void move (int new_x, char *new_address, int new_y );
++int find_x (LINE *line, char *address );
++char *find_address (LINE *line, int x_coord, int *old_x );
++int length_of (char *string );
++void copy_string (char *to, char *from );
++void reset (LINE *head_line, int screen_y );
++void set_cursor (int nx, int ny );
++void open_device (void);
++int getchar (void);
++void display (int x_coord, int y_coord, LINE *line, int count );
++int write_char (int fd, int c );
++int writeline (int fd, char *text );
++void put_line (LINE *line, int offset, FLAG clear_line );
++int flush_buffer (int fd );
++void bad_write (int fd );
++void catch (int sig );
++void abort_mined (void);
++void raw_mode (FLAG state );
++void panic (char *message );
++char *alloc (int bytes );
++void free_space (char *p );
+ /*
+ #ifdef UNIX
+-_PROTOTYPE(void (*key_map [128]), (void));
++void (*key_map [128]) (void);
+ #else
+-_PROTOTYPE(void (*key_map [256]), (void));
++void (*key_map [256]) (void);
+ #endif
+ */
+-_PROTOTYPE(void initialize, (void));
+-_PROTOTYPE(char *basename, (char *path ));
+-_PROTOTYPE(void load_file, (char *file ));
+-_PROTOTYPE(int get_line, (int fd, char *buffer ));
+-_PROTOTYPE(LINE *install_line, (char *buffer, int length ));
+-_PROTOTYPE(void main, (int argc, char *argv []));
+-_PROTOTYPE(void RD, (void));
+-_PROTOTYPE(void I, (void));
+-_PROTOTYPE(void XT, (void));
+-_PROTOTYPE(void ESC, (void));
+-_PROTOTYPE(int ask_save, (void));
+-_PROTOTYPE(int line_number, (void));
+-_PROTOTYPE(void file_status, (char *message, long count, char *file, int lines,
+-						 FLAG writefl, FLAG changed ));
++void initialize (void);
++char *basename (char *path );
++void load_file (char *file );
++int get_line (int fd, char *buffer );
++LINE *install_line (char *buffer, int length );
++int main (int argc, char *argv []);
++void RD (void);
++void I (void);
++void XT (void);
++void ESC (void);
++int ask_save (void);
++int line_number (void);
++void file_status (char *message, long count, char *file, int lns, FLAG writefl, FLAG changed);
+ #if __STDC__
+ void build_string(char *buf, char *fmt, ...);
+ #else
+ void build_string();
+ #endif
+-_PROTOTYPE(char *num_out, (long number ));
+-_PROTOTYPE(int get_number, (char *message, int *result ));
+-_PROTOTYPE(int input, (char *inbuf, FLAG clearfl ));
+-_PROTOTYPE(int get_file, (char *message, char *file ));
+-_PROTOTYPE(int _getchar, (void));
+-_PROTOTYPE(void _flush, (void));
+-_PROTOTYPE(void _putchar, (int c ));
+-_PROTOTYPE(void get_term, (void));
++char *num_out (long number );
++int get_number (char *message, int *result );
++int input (char *inbuf, FLAG clearfl );
++int get_file (char *message, char *file );
++int _getchar (void);
++void _flush (void);
++void _putchar (int c );
++void get_term (void);
+ 
+ /* mined2.c */
+ 
+-_PROTOTYPE(void UP, (void));
+-_PROTOTYPE(void DN, (void));
+-_PROTOTYPE(void LF, (void));
+-_PROTOTYPE(void RT, (void));
+-_PROTOTYPE(void HIGH, (void));
+-_PROTOTYPE(void LOW, (void));
+-_PROTOTYPE(void BL, (void));
+-_PROTOTYPE(void EL, (void));
+-_PROTOTYPE(void GOTO, (void));
+-_PROTOTYPE(void PD, (void));
+-_PROTOTYPE(void PU, (void));
+-_PROTOTYPE(void HO, (void));
+-_PROTOTYPE(void EF, (void));
+-_PROTOTYPE(void SU, (void));
+-_PROTOTYPE(void SD, (void));
+-_PROTOTYPE(int forward_scroll, (void));
+-_PROTOTYPE(int reverse_scroll, (void));
+-_PROTOTYPE(void MP, (void));
+-_PROTOTYPE(void move_previous_word, (FLAG remove ));
+-_PROTOTYPE(void MN, (void));
+-_PROTOTYPE(void move_next_word, (FLAG remove ));
+-_PROTOTYPE(void DCC, (void));
+-_PROTOTYPE(void DPC, (void));
+-_PROTOTYPE(void DLN, (void));
+-_PROTOTYPE(void DNW, (void));
+-_PROTOTYPE(void DPW, (void));
+-_PROTOTYPE(void S, (int character ));
+-_PROTOTYPE(void CTL, (void));
+-_PROTOTYPE(void LIB, (void));
+-_PROTOTYPE(LINE *line_insert, (LINE *line, char *string, int len ));
+-_PROTOTYPE(int insert, (LINE *line, char *location, char *string ));
+-_PROTOTYPE(LINE *line_delete, (LINE *line ));
+-_PROTOTYPE(void delete, (LINE *start_line, char *start_textp, LINE *end_line, char *end_textp ));
+-_PROTOTYPE(void PT, (void));
+-_PROTOTYPE(void IF, (void));
+-_PROTOTYPE(void file_insert, (int fd, FLAG old_pos ));
+-_PROTOTYPE(void WB, (void));
+-_PROTOTYPE(void MA, (void));
+-_PROTOTYPE(void YA, (void));
+-_PROTOTYPE(void DT, (void));
+-_PROTOTYPE(void set_up, (FLAG remove ));
+-_PROTOTYPE(FLAG checkmark, (void));
+-_PROTOTYPE(int legal, (void));
+-_PROTOTYPE(void yank, (LINE *start_line, char *start_textp, LINE *end_line, char *end_textp, FLAG remove ));
+-_PROTOTYPE(int scratch_file, (FLAG mode ));
+-_PROTOTYPE(void SF, (void));
+-_PROTOTYPE(void SR, (void));
+-_PROTOTYPE(REGEX *get_expression, (char *message ));
+-_PROTOTYPE(void GR, (void));
+-_PROTOTYPE(void LR, (void));
+-_PROTOTYPE(void change, (char *message, FLAG file ));
+-_PROTOTYPE(char *substitute, (LINE *line, REGEX *program, char *replacement ));
+-_PROTOTYPE(void search, (char *message, FLAG method ));
+-_PROTOTYPE(int find_y, (LINE *match_line ));
+-_PROTOTYPE(void finished, (REGEX *program, int *last_exp ));
+-_PROTOTYPE(void compile, (char *pattern, REGEX *program ));
+-_PROTOTYPE(LINE *match, (REGEX *program, char *string, FLAG method ));
+-_PROTOTYPE(int line_check, (REGEX *program, char *string, FLAG method ));
+-_PROTOTYPE(int check_string, (REGEX *program, char *string, int *expression ));
+-_PROTOTYPE(int star, (REGEX *program, char *end_position, char *string, int *expression ));
+-_PROTOTYPE(int in_list, (int *list, int c, int list_length, int opcode ));
+-_PROTOTYPE(void dummy_line, (void));
++void UP (void);
++void DN (void);
++void LF (void);
++void RT (void);
++void HIGH (void);
++void LOW (void);
++void BL (void);
++void EL (void);
++void GOTO (void);
++void PD (void);
++void PU (void);
++void HO (void);
++void EF (void);
++void SU (void);
++void SD (void);
++int forward_scroll (void);
++int reverse_scroll (void);
++void MP (void);
++void move_previous_word (FLAG remove );
++void MN (void);
++void move_next_word (FLAG remove );
++void DCC (void);
++void DPC (void);
++void DLN (void);
++void DNW (void);
++void DPW (void);
++void S (int character );
++void CTL (void);
++void LIB (void);
++LINE *line_insert (LINE *line, char *string, int len );
++int insert (LINE *line, char *location, char *string );
++LINE *line_delete (LINE *line );
++void delete (LINE *start_line, char *start_textp, LINE *end_line, char *end_textp );
++void PT (void);
++void IF (void);
++void file_insert (int fd, FLAG old_pos );
++void WB (void);
++void MA (void);
++void YA (void);
++void DT (void);
++void set_up (FLAG remove );
++FLAG checkmark (void);
++int legal (void);
++void yank (LINE *start_line, char *start_textp, LINE *end_line, char *end_textp, FLAG remove );
++int scratch_file (FLAG mode );
++void SF (void);
++void SR (void);
++REGEX *get_expression (char *message );
++void GR (void);
++void LR (void);
++void change (char *message, FLAG file );
++char *substitute (LINE *line, REGEX *program, char *replacement );
++void search (char *message, FLAG method );
++int find_y (LINE *match_line );
++void finished (REGEX *program, int *last_exp );
++void compile (char *pattern, REGEX *program );
++LINE *match (REGEX *program, char *string, FLAG method );
++int line_check (REGEX *program, char *string, FLAG method );
++int check_string (REGEX *program, char *string, int *expression );
++int star (REGEX *program, char *end_position, char *string, int *expression );
++int in_list (int *list, int c, int list_length, int opcode );
++void dummy_line (void);
+diff --git a/minix-2.0/fs/usr/src/commands/mined/mined1.c b/minix-2.0/fs/usr/src/commands/mined/mined1.c
+index 7c1f88f..19318dc 100644
+--- a/minix-2.0/fs/usr/src/commands/mined/mined1.c
++++ b/minix-2.0/fs/usr/src/commands/mined/mined1.c
+@@ -1421,7 +1421,7 @@ int length;
+   return new_line;
+ }
+ 
+-void main(argc, argv)
++int main(argc, argv)
+ int argc;
+ char *argv[];
+ {
+@@ -1481,6 +1481,7 @@ char *argv[];
+   	}
+   }
+   /* NOTREACHED */
++  return 0;
+ }
+ 
+ /*  ========================================================================  *
+@@ -1702,11 +1703,11 @@ int line_number()
+  * Display a line telling how many chars and lines the file contains. Also tell
+  * whether the file is readonly and/or modified.
+  */
+-void file_status(message, count, file, lines, writefl, changed)
++void file_status(message, count, file, lns, writefl, changed)
+ char *message;
+ register long count;		/* Contains number of characters in file */
+ char *file;
+-int lines;
++int lns;
+ FLAG writefl, changed;
+ {
+   register LINE *line;
+@@ -1727,7 +1728,7 @@ FLAG writefl, changed;
+   		    (rpipe == TRUE && *message != '[') ? "standard input" : basename(file),
+   		    (changed == TRUE) ? "*" : "",
+   		    (writefl == FALSE) ? " (Readonly)" : "",
+-  		    lines, (lines == 1) ? "" : "s", 
++  		    lns, (lns == 1) ? "" : "s",
+ 		    count, (count == 1L) ? "" : "s",
+ 		    yank_msg, line_number());
+ 
+diff --git a/minix-2.0/fs/usr/src/commands/mined/mined2.c b/minix-2.0/fs/usr/src/commands/mined/mined2.c
+index 1b16d87..64b0361 100644
+--- a/minix-2.0/fs/usr/src/commands/mined/mined2.c
++++ b/minix-2.0/fs/usr/src/commands/mined/mined2.c
+@@ -1127,7 +1127,7 @@ FLAG file;
+   REGEX *program;			/* Program resulting from compilation */
+   register LINE *line = cur_line;
+   register char *textp;
+-  long lines = 0L;		/* Nr of lines on which subs occurred */
++  long lns = 0L;		/* Nr of lines on which subs occurred */
+   long subs = 0L;			/* Nr of subs made */
+   int page = y;			/* Index to check if line is on screen*/
+ 
+@@ -1146,7 +1146,7 @@ FLAG file;
+ /* Substitute until end of file */
+   do {
+   	if (line_check(program, line->text, FORWARD)) {
+-  		lines++;
++          lns++;
+   		/* Repeat sub. on this line as long as we find a match*/
+   		do {
+   			subs++;	/* Increment subs */
+@@ -1171,9 +1171,9 @@ FLAG file;
+ /* Fix the status line */
+   if (subs == 0L && quit == FALSE)
+   	error("Pattern not found.", NIL_PTR);
+-  else if (lines >= REPORT || quit == TRUE) {
++  else if (lns >= REPORT || quit == TRUE) {
+   	build_string(mess_buf, "%s %D substitutions on %D lines.", mess_buf,
+-								   subs, lines);
++								   subs, lns);
+   	status_line(mess_buf, NIL_PTR);
+   }
+   else if (file == NOT_VALID && subs >= REPORT)
