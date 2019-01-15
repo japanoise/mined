@@ -12,7 +12,8 @@ kernel :)
 
 ## differences
 
-For the full gory details, check out mined-diff. The short version is:
+For the full gory details, check out mined-diff, which is the minimum necessary
+change to get it to compile. The short version is:
 
 - Expand `_PROTOTYPE` macro inline. I actually hate this macro, it's the bane of
   my existance. Just write it out properly ffs! If you're really writing ancient
@@ -26,6 +27,12 @@ For the full gory details, check out mined-diff. The short version is:
 - Include `term.h` and link against `ncurses`
 - Rename paramaters and variables `lines` → `lns`, since something about 
   including `term.h` borks these.
+
+### enhancements
+
+Here's what I've changed after the initial commit.
+
+- Modify mined to support xterm escape sequences.
 
 ## copying
 

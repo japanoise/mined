@@ -1201,7 +1201,7 @@ void (*key_map[256])() = {       /* map ASCII characters to functions */
    /* 100-117 */ S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S,
    /* 120-137 */ S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S,
    /* 140-157 */ S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S,
-   /* 160-177 */ S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, DCC,
+   /* 160-177 */ S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, DPC,
    /* 200-217 */ S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S,
    /* 220-237 */ S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S,
    /* 240-257 */ S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S,
@@ -1540,57 +1540,39 @@ void XT()
 void (*escfunc(c))()
 int c;
 {
-#if (CHIP == M68000)
-#ifndef COMPAT
-  int ch;
-#endif
-#endif
+  /* This is designed with xterm & compatible in mind - you may need to tweak it */
   if (c == '[') {
 	/* Start of ASCII escape sequence. */
 	c = getchar();
-#if (CHIP == M68000)
-#ifndef COMPAT
-	if ((c >= '0') && (c <= '9')) ch = getchar();
-	/* ch is either a tilde or a second digit */
-#endif
-#endif
 	switch (c) {
-	case 'H': return(HO);
-	case 'A': return(UP);
-	case 'B': return(DN);
-	case 'C': return(RT);
-	case 'D': return(LF);
-#if (CHIP == M68000)
-#ifndef COMPAT
-	/* F1 = ESC [ 1 ~ */
-	/* F2 = ESC [ 2 ~ */
-	/* F3 = ESC [ 3 ~ */
-	/* F4 = ESC [ 4 ~ */
-	/* F5 = ESC [ 5 ~ */
-	/* F6 = ESC [ 6 ~ */
-	/* F7 = ESC [ 17 ~ */
-	/* F8 = ESC [ 18 ~ */
-	case '1': 
-	 	  switch (ch) {
-		  case '~': return(SF);
-		  case '7': (void) getchar(); return(MA);
-		  case '8': (void) getchar(); return(CTL);
-                  }
-	case '2': return(SR);
-	case '3': return(PD);
-	case '4': return(PU);
-	case '5': return(FS);
-	case '6': return(EF);
-#endif
-#endif
-#if (CHIP == INTEL)
+	case 'H': return(HO); /* Home */
+	case 'F': return(EF); /* End */
+	case 'A': return(UP); /* Arrow up */
+	case 'B': return(DN); /* Arrow down */
+	case 'C': return(RT); /* Arrow right */
+	case 'D': return(LF); /* Arrow left */
 	case 'G': return(FS);
 	case 'S': return(SR);
 	case 'T': return(SF);
 	case 'U': return(PD);
 	case 'V': return(PU);
 	case 'Y': return(EF);
-#endif
+	default:
+		if (c>='0' && c<='9') {
+			/*
+			 * Extended escape - welcome to 2019, mined!
+			 * Thanks to Antirez, the god of text editors.
+			 */
+			int c2 = getchar();
+			if (c2 == '~') {
+				switch (c) {
+				case '3': return(DCC); /* del */
+				case '5': return(PU); /* pgup */
+				case '6': return(PD); /* pgdn */
+				default: return(I);
+				}
+			}
+		}
 	}
 	return(I);
   }
